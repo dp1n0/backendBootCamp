@@ -1,4 +1,4 @@
-package model;
+package com.example.demo.model;
 
 import javax.persistence.Column;
 import javax.persistence.Entity;
@@ -8,36 +8,36 @@ import javax.persistence.Id;
 import javax.persistence.Table;
 
 @Entity
-@Table(name="Tests")
+@Table(name="tests")
 public class Tests {
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-	
-	private Long id;
+//	@Column(name="id")
+	private long id;
+	@Column(name="name")
 	private String name;
+	@Column(name = "description")
 	private String description;
 	
 	public Tests() {
-		super();
+		
 	}
 	
 	public Tests(String name, String description) {
-		super();
 		this.name = name;
 		this.description = description;
 	}
 	
-	@Id
-	@GeneratedValue(strategy = GenerationType.AUTO)
-	public Long getId() {
+//	@Id
+//	@GeneratedValue(strategy = GenerationType.AUTO)
+	public long getId() {
 		return id;
 	}
 
-	public void setId(Long id) {
-		this.id = id;
-	}
+//	public void setId(Long id) {
+//		this.id = id;
+//	}
 	
-	@Column(name="name")
 	public String getName() {
 		return name;
 	}
@@ -46,7 +46,6 @@ public class Tests {
 		this.name = name;
 	}
 
-	@Column(name = "description")
 	public String getDescription() {
 		return description;
 	}
