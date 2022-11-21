@@ -1,10 +1,10 @@
 package com.demo.repository;
 
+import java.time.LocalDate;
 import java.util.List;
 
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
-import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
 import com.demo.model.Appointment;
@@ -13,8 +13,10 @@ import com.demo.model.Appointment;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 //	List<Appointment> findByDate(String _date);
 //	List<Appointment> findByAffiliate(long id_affiliate);
-	@Query("select a from Appointments a where a.id_affiliate = :id_affiliate")
-	List<Appointment> findAfilliateById(@Param("id_affiliate") int id_affiliate);
+	@Query(value = "select * from Appointments where id_affiliate = ?3", nativeQuery = true)
+	List<Appointment> findAfilliateById(long id_affiliate);
+	@Query(value = "select * from appointments where date_app = to_date('?1')", nativeQuery = true)
+	List<Appointment> finAffiliateByDate(String date);
 //	List<Appointment> findAffiliateById(String id_affiliate);
 //	List<Appointment> findAffiliateById(@Param("id_affiliate") int id_affiliate);
 }

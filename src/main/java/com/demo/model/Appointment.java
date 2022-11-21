@@ -23,13 +23,13 @@ public class Appointment {
 	@Column(name = "id_test")
 	private int id_test;
 	@Column(name = "id_affiliate")
-	private int id_affiliate;
+	private long id_affiliate;
 	
 	public Appointment() {
 		super();
 	}
 
-	public Appointment(LocalDate date_app, LocalTime  hour_app, int id_test, int id_affiliate) {
+	public Appointment(LocalDate date_app, LocalTime  hour_app, int id_test, long id_affiliate) {
 		super();
 		this.date_app = date_app;
 		this.hour_app = hour_app;
@@ -65,11 +65,11 @@ public class Appointment {
 		this.id_test = id_test;
 	}
 
-	public int getId_affiliate() {
+	public long getId_affiliate() {
 		return id_affiliate;
 	}
 
-	public void setId_affiliate(int id_affiliate) {
+	public void setId_affiliate(long id_affiliate) {
 		this.id_affiliate = id_affiliate;
 	}
 

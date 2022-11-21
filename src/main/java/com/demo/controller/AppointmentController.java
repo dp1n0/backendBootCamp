@@ -1,11 +1,9 @@
 package com.demo.controller;
 
-import java.time.Period;
-import java.util.ArrayList;
+import java.time.LocalDate;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
-import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -76,6 +74,34 @@ public class AppointmentController {
 		Map<String, Boolean> response = new HashMap<>();
 		response.put("deleted", Boolean.TRUE);
 		return response;
+	}
+	
+	@GetMapping("/appointment/af")
+	public ResponseEntity<List<Appointment>> getByAffiliatesId(@RequestParam(required = false) long id) {
+		try {
+			List<Appointment> appointment = appointmentRepository.findAfilliateById(id);
+			
+//			if (appointment.isEmpty()) {
+//				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//			}
+			return new ResponseEntity<>(appointment, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
+	}
+	
+	@GetMapping("/appointment/d")
+	public ResponseEntity<List<Appointment>> getByAffiliatesDate(@RequestParam(required = false) String date) {
+		try {
+			List<Appointment> appointment = appointmentRepository.finAffiliateByDate(date);
+			
+//			if (appointment.isEmpty()) {
+//				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+//			}
+			return new ResponseEntity<>(appointment, HttpStatus.OK);
+		} catch (Exception e) {
+			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
+		}
 	}
 	
 //	@GetMapping("/appointment/affiliates")
