@@ -1,11 +1,13 @@
 package com.demo.controller;
 
 import java.time.LocalDate;
+import java.util.ArrayList;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 //import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -17,7 +19,6 @@ import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.exception.ResourceNotFoundException;
@@ -76,28 +77,33 @@ public class AppointmentController {
 		return response;
 	}
 	
-	@GetMapping("/appointment/af")
-	public ResponseEntity<List<Appointment>> getByAffiliatesId(@RequestParam(required = false) long id) {
+	@GetMapping("/appointment/affiliate/{id_affiliate}")
+	public ResponseEntity<List<Appointment>> getByAffiliatesId(@PathVariable(name = "id_affiliate") long id) {
 		try {
-			List<Appointment> appointment = appointmentRepository.findAfilliateById(id);
 			
-//			if (appointment.isEmpty()) {
-//				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//			}
+			List<Appointment> appointment = new ArrayList<Appointment>();
+			appointmentRepository.findAffiliateById(id).forEach(appointment::add);
+			
+			if (appointment.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
+			
 			return new ResponseEntity<>(appointment, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
 	
-	@GetMapping("/appointment/d")
-	public ResponseEntity<List<Appointment>> getByAffiliatesDate(@RequestParam(required = false) String date) {
+	@GetMapping("/appointment/date/{date}")
+	public ResponseEntity<List<Appointment>> getByAffiliatesDate(@PathVariable(name = "date")	
+	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		try {
-			List<Appointment> appointment = appointmentRepository.finAffiliateByDate(date);
+			List<Appointment> appointment = new ArrayList<Appointment>();
+			appointmentRepository.findAffiliateByDate(date).forEach(appointment::add);
 			
-//			if (appointment.isEmpty()) {
-//				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-//			}
+			if (appointment.isEmpty()) {
+				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
+			}
 			return new ResponseEntity<>(appointment, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

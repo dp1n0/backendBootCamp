@@ -13,10 +13,12 @@ import com.demo.model.Appointment;
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 //	List<Appointment> findByDate(String _date);
 //	List<Appointment> findByAffiliate(long id_affiliate);
-	@Query(value = "select * from Appointments where id_affiliate = ?3", nativeQuery = true)
-	List<Appointment> findAfilliateById(long id_affiliate);
-	@Query(value = "select * from appointments where date_app = to_date('?1')", nativeQuery = true)
-	List<Appointment> finAffiliateByDate(String date);
+	@Query(value = "select * from Appointments where id_affiliate = ?1", nativeQuery = true)
+	List<Appointment> findAffiliateById(long id);
+	
+	@Query(value = "select * from appointments where date_app = ?1", nativeQuery = true)
+	List<Appointment> findAffiliateByDate(LocalDate date);
+	
 //	List<Appointment> findAffiliateById(String id_affiliate);
 //	List<Appointment> findAffiliateById(@Param("id_affiliate") int id_affiliate);
 }
