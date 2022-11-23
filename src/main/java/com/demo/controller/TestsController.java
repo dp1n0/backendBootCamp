@@ -26,49 +26,6 @@ public class TestsController {
 	@Autowired
 	private TestsRepository testsRepository;
 	
-//	@GetMapping("/tests")
-//	public List<Tests> getList(){
-//		return testsRepository.findAll();
-//	}
-	
-//	@GetMapping("tests/{id}")
-//	public ResponseEntity<Tests> getById(@PathVariable(value = "id") Long testId)
-//	throws ResourceNotFoundException {
-//		Tests test = testsRepository.findById(testId)
-//				.orElseThrow(() -> new ResourceNotFoundException("Test not found for this id :: " + testId));
-//		return ResponseEntity.ok().body(test);
-//	}
-
-//	@PostMapping("/tests")
-//	public Tests post(@RequestBody Tests test) {
-//		return testsRepository.save(test);
-//	}
-
-//	@PutMapping("/tests/{id}")
-//	public ResponseEntity<Tests> put(@PathVariable(value = "id") Long testId,
-//			@RequestBody Tests testDetails) throws ResourceNotFoundException {
-//		Tests test = testsRepository.findById(testId)
-//				.orElseThrow(() -> new ResourceNotFoundException("Test not found for this id :: " + testId));
-//		
-//		test.setName(testDetails.getName());
-//		test.setDescription(testDetails.getDescription());
-//		
-//		final Tests updateTests = testsRepository.save(test);
-//		return ResponseEntity.ok(updateTests);
-//	}
-
-//	@DeleteMapping("/tests/{id}")
-//	public Map<String, Boolean> delete(@PathVariable(value = "id") Long testId)
-//			throws ResourceNotFoundException {
-//		Tests test = testsRepository.findById(testId)
-//				.orElseThrow(() -> new ResourceNotFoundException("Test not found for this id :: " + testId));
-//		
-//		testsRepository.delete(test);
-//		Map<String, Boolean> response = new HashMap<>();
-//		response.put("deleted", Boolean.TRUE);
-//		return response;
-//	}
-	
 	@GetMapping("/tests")
 	public ResponseEntity<List<Tests>> getList() {
 		try {
@@ -113,7 +70,6 @@ public class TestsController {
 		}
 	}
 	
-	
 	@DeleteMapping("/tests/{id}")
 	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) {
 		try {
@@ -123,5 +79,4 @@ public class TestsController {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 		}
 	}
-
 }
