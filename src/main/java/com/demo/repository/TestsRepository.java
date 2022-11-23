@@ -7,5 +7,5 @@ import com.demo.model.Tests;
 
 @Repository
 public interface TestsRepository extends JpaRepository<Tests, Long>{
-//	List<Tests> findById(String id);
+	
 }

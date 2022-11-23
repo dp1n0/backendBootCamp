@@ -47,6 +47,16 @@ public class AppointmentController {
 	
 	@PostMapping("/appointment")
 	public Appointment post(@RequestBody Appointment appointment) {
+		appointmentRepository.addContract(appointment.getId());
+		try {
+//			appointmentRepository.addContract((long) 227);
+//			appointmentRepository.addContract(appointmentRepository.getValSequence());
+//			System.out.println(appointmentRepository.getValSequence());
+			appointmentRepository.addContract(appointment.getId());
+		} catch (Exception e) {
+			
+		}
+		System.out.println(appointment.getId_test());
 		return appointmentRepository.save(appointment);
 	}
 	
@@ -104,6 +114,7 @@ public class AppointmentController {
 			if (appointment.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
+			
 			return new ResponseEntity<>(appointment, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);

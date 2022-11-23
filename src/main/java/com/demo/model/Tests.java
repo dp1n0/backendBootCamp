@@ -28,8 +28,6 @@ public class Tests {
 		this.description = description;
 	}
 	
-//	@Id
-//	@GeneratedValue(strategy = GenerationType.AUTO)
 	public long getId() {
 		return id;
 	}

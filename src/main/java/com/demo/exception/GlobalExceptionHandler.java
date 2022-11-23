@@ -25,4 +25,12 @@ request.getDescription(false));
 				request.getDescription(false));
 		return new ResponseEntity<>(errorDetails, HttpStatus.INTERNAL_SERVER_ERROR);
 	}
+	
+	@ExceptionHandler(ResourceNotContent.class)
+	public ResponseEntity<?> notContent(Exception ex,
+			WebRequest request) {
+		ErrorDetails errorDetails = new ErrorDetails(new Date(), ex.getMessage(),
+				request.getDescription(false));
+		return new ResponseEntity<>(errorDetails, HttpStatus.NO_CONTENT);
+	}
 }
