@@ -28,13 +28,20 @@ public class Tests {
 		this.description = description;
 	}
 	
+	public Tests(long id, String name, String description) {
+		super();
+		this.id = id;
+		this.name = name;
+		this.description = description;
+	}
+
 	public long getId() {
 		return id;
 	}
 
-//	public void setId(Long id) {
-//		this.id = id;
-//	}
+	public void setId(Long id) {
+		this.id = id;
+	}
 	
 	public String getName() {
 		return name;

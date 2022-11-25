@@ -26,6 +26,10 @@ public class TestsController {
 	@Autowired
 	private TestsRepository testsRepository;
 	
+	public TestsController(TestsRepository testsRepository) {
+		this.testsRepository = testsRepository;
+	}
+
 	@GetMapping("/tests")
 	public ResponseEntity<List<Tests>> getList() {
 		try {
