@@ -1,116 +1,218 @@
 package com.demo.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import com.demo.model.Appointment;
 import com.demo.repository.AppointmentRepository;
 
-import net.bytebuddy.asm.Advice.Local;
-
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE)
+@WebMvcTest(AppointmentController.class)
 public class AppointmentControllerTest {
 	
 	@Autowired
-	AppointmentRepository appointmentRepository;
+	private MockMvc mockMvc;
+	
+	@MockBean
+	private AppointmentRepository repository;
 
-	private Appointment getTest() {
-		Appointment appointment = new Appointment();
+	ObjectMapper mapper = new ObjectMapper();
+	ObjectWriter writer = mapper.writer();
+	
+	private Appointment appointment;
+
+	@BeforeEach
+	void setUp() {
+		appointment = new Appointment();
 		appointment.setDate_app(LocalDate.now());
 		appointment.setHour_app(LocalTime.now());
-		appointment.setId_affiliate(202L);
-		appointment.setId_test(106L);
-		return appointment;
+		appointment.setId_affiliate(1);
+		appointment.setId_test(100);
+		
+		List<Appointment> list = new ArrayList<>();
+		list.add(appointment);
+		
+		Optional<Appointment> optional = Optional.of(appointment);
+		
+		Mockito.when(repository.findAll()).thenReturn(list);
+		Mockito.when(repository.findById(1L)).thenReturn(optional);
+		Mockito.when(repository.save(appointment)).thenReturn(appointment);
+		Mockito.when(repository.findAffiliateById(1L)).thenReturn(list);
+		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenReturn(list);
 	}
 	
-	@DisplayName("getList")
 	@org.junit.jupiter.api.Test
-	public void testGetList() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
-		List<Appointment> result = new ArrayList<>();
-		appointmentRepository.findAll().forEach(e -> result.add(e));
-		assertNotNull(result);
-		assertTrue(result.size() > 0);
-	}
-
-	@DisplayName("getById")
-	@Test
-	public void testGetById() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
-		Appointment result = appointmentRepository.findById(appointment.getId()).get();
-		assertEquals(appointment.getId(), result.getId());
-	}
-
-	@DisplayName("post")
-	@Test
-	public void testPost() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
-		Appointment result = appointmentRepository.findById(appointment.getId()).get();
-		assertEquals(appointment.getId(), result.getId());
-		assertEquals(appointment.getId_affiliate(), result.getId_affiliate());
-	}
-
-	@DisplayName("put")
-	@Test
-	public void testPut() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
-		Appointment result = appointmentRepository.findById(appointment.getId()).get();
-		assertEquals(appointment.getId(), result.getId());
-		assertEquals(appointment.getId_test(), result.getId_test());
-	}
-
-	@DisplayName("delete")
-	@Test
-	public void testDelete() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
-		appointmentRepository.deleteById(appointment.getId());
-		List <Appointment> result = new ArrayList<>();
-		appointmentRepository.findAll().forEach(e -> result.add(e));
-		assertNotNull(result);
-//		assertNull(result);
-//		assertEquals(result.size(), 0);
+	public void getAll() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath("$", hasSize(1)));
+		
+		//Exception
+		Mockito.when(repository.findAll()).thenThrow(RuntimeException.class);
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isNoContent());
 	}
 	
-	@DisplayName("getByAffiliatesId")
-	@Test
-	public void getByAffiliatesId() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
+	@org.junit.jupiter.api.Test
+	public void getById() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/1")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath("$").isNotEmpty());
 		
-		long id = 202L;
-		List<Appointment> result = new ArrayList<Appointment>();
-		appointmentRepository.findAffiliateById(id).forEach(result::add);
-		
-		assertEquals(appointment.getId_affiliate(), id);
+		//Exeption
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/2")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isNotFound());
 	}
 	
-	@DisplayName("getByAffiliatesDate")
-	@Test
-	public void getByAffiliatesDate() {
-		Appointment appointment = getTest();
-		appointmentRepository.save(appointment);
+	@org.junit.jupiter.api.Test
+	public void post() throws Exception {
+//		Appointment update = new Appointment();
+//		LocalDate date = LocalDate.of(2022, 11, 25);
+//		LocalTime time = LocalTime.of(8, 0);
+//		update.setDate_app(date);
+//		update.setHour_app(time);
+//		update.setId_affiliate(2);
+//		update.setId_test(103);
+//		
+//		String content = writer.writeValueAsString(update);
 		
-		LocalDate date = LocalDate.now();
-		List<Appointment> result = new ArrayList<Appointment>();
-		appointmentRepository.findAffiliateByDate(date).forEach(result::add);
+		mockMvc.perform(MockMvcRequestBuilders
+				.post("/api/controller/appointment")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\r\n"
+						+ "    \"date_app\": \"25/11/2022\",\r\n"
+						+ "    \"hour_app\": \"20:00\",\r\n"
+						+ "    \"id_test\": \"103\",\r\n"
+						+ "    \"id_affiliate\": \"2\"\r\n"
+						+ "}"))
+		.andExpect(MockMvcResultMatchers.status().isCreated());
 		
-		assertEquals(appointment.getDate_app(), LocalDate.now());
 	}
+	
+	@org.junit.jupiter.api.Test
+	public void put() throws Exception {
+		Appointment update = new Appointment();
+		update.setDate_app(LocalDate.now());
+		update.setHour_app(LocalTime.now());
+		update.setId_affiliate(2);
+		update.setId_test(103);
+		
+		Mockito.when(repository.save(update)).thenReturn(update);
+//		String content = writer.writeValueAsString(update);
+		
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.put("/api/controller/appointment/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content("{\r\n"
+						+ "    \"date_app\": \"25/11/2022\",\r\n"
+						+ "    \"hour_app\": \"20:00\",\r\n"
+						+ "    \"id_test\": \"103\",\r\n"
+						+ "    \"id_affiliate\": \"2\"\r\n"
+						+ "}");
+		
+		mockMvc.perform(builder)
+		.andExpect(status().isCreated());
+		
+		//Exception
+		MockHttpServletRequestBuilder builder2 = MockMvcRequestBuilders
+				.put("/api/controller/appointment/2")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content("{\r\n"
+						+ "    \"date_app\": \"25/11/2022\",\r\n"
+						+ "    \"hour_app\": \"20:00\",\r\n"
+						+ "    \"id_test\": \"103\",\r\n"
+						+ "    \"id_affiliate\": \"2\"\r\n"
+						+ "}");
+		
+		mockMvc.perform(builder2)
+		.andExpect(status().isNotFound());
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void delete() throws Exception {
+		//first is find by Id, that is in the @BeforeEach function
+		mockMvc.perform(MockMvcRequestBuilders
+				.delete("/api/controller/appointment/1")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk());
+		
+		//Exception
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void getByAffiliatesId() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/affiliate/1")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath("$").isNotEmpty());
+		
+		//Exeption - Error server
+		Mockito.when(repository.findAffiliateById(2L)).thenThrow(RuntimeException.class);
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/affiliate/2")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isInternalServerError());
+		
+		//No content - Empty
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/affiliate/3")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isNoContent());
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void getByAffiliatesDate() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/date/2022-11-25")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath("$").isNotEmpty());
+		
+		//No content - Empty
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/date/2022-11-26")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isNoContent());
+		
+		//Exeption - Error server
+		//The exception will generate when the user enter a invalid information, for example
+		//date incomplete, o a text string
+		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenThrow(RuntimeException.class);
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/appointment/date/2022-11-25")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isInternalServerError());
+	}
+
 }

@@ -17,14 +17,14 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.model.Affiliate;
-import com.demo.repository.AfilliateRepository;
+import com.demo.repository.AffiliateRepository;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/controller")
 public class AffiliatesController {
 	@Autowired
-	private AfilliateRepository afilliateRepository;
+	private AffiliateRepository afilliateRepository;
 	
 	@GetMapping("/affiliates")
 	public ResponseEntity<List<Affiliate>> getList() {

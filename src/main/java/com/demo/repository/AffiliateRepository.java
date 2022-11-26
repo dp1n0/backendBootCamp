@@ -6,6 +6,6 @@ import org.springframework.stereotype.Repository;
 import com.demo.model.Affiliate;
 
 @Repository
-public interface AfilliateRepository extends JpaRepository<Affiliate, Long>{
+public interface AffiliateRepository extends JpaRepository<Affiliate, Long>{
 
 }

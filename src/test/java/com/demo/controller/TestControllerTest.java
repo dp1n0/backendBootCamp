@@ -1,83 +1,142 @@
 package com.demo.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.jsonPath;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
+import static org.hamcrest.collection.IsCollectionWithSize.hasSize;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
-import org.junit.jupiter.api.Test;
-import org.junit.jupiter.api.DisplayName;
+import org.junit.jupiter.api.BeforeEach;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase;
-import org.springframework.boot.test.autoconfigure.jdbc.AutoConfigureTestDatabase.Replace;
-import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.boot.test.mock.mockito.MockBean;
+import org.springframework.http.MediaType;
+import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilder;
+import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
+import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
+
+import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.ObjectWriter;
 
 import com.demo.model.Tests;
 import com.demo.repository.TestsRepository;
 
-@DataJpaTest
-@AutoConfigureTestDatabase(replace = Replace.NONE)
+@WebMvcTest(TestsController.class)
 public class TestControllerTest {
 	
 	@Autowired
-	TestsRepository testRepository;
+	private MockMvc mockMvc;
+	
+	@MockBean
+	private TestsRepository repository;
 
-	private Tests getTest() {
-		Tests test = new Tests();
-		test.setDescription("TRIGLYCERIDES TEST");
-		test.setName("TRIGLYCERIDES");
-		return test;
+	ObjectMapper mapper = new ObjectMapper();
+	ObjectWriter writer = mapper.writer();
+	
+	private Tests test;
+
+	@BeforeEach
+	void setUp() {
+		test = new Tests();
+		test.setDescription("BLOOD");
+		test.setName("BLOOD TESTS");
+		
+		List<Tests> tests = new ArrayList<>();
+		tests.add(test);
+		
+		Optional<Tests> optional = Optional.of(test);
+		
+		Mockito.when(repository.findAll()).thenReturn(tests);
+		Mockito.when(repository.findById(1L)).thenReturn(optional);
+		Mockito.when(repository.save(test)).thenReturn(test);
 	}
 	
-	@DisplayName("getList")
 	@org.junit.jupiter.api.Test
-	public void testGetList() {
-		Tests test = getTest();
-		testRepository.save(test);
-		List<Tests> result = new ArrayList<>();
-		testRepository.findAll().forEach(e -> result.add(e));
-		assertNotNull(result);
-		assertTrue(result.size() > 0);
+	public void getAll() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/tests")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath("$", hasSize(1)));
+		
+		//Exception
+		Mockito.when(repository.findAll()).thenThrow(RuntimeException.class);
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/tests")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isNoContent());
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void getById() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/tests/1")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isOk())
+		.andExpect(jsonPath("$").isNotEmpty());
+		
+		//Exeption
+		mockMvc.perform(MockMvcRequestBuilders
+				.get("/api/controller/tests/2")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(MockMvcResultMatchers.status().isNotFound());
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void post() throws Exception {
+		mockMvc.perform(MockMvcRequestBuilders
+				.post("/api/controller/tests")
+				.contentType(MediaType.APPLICATION_JSON)
+				.content("{\r\n"
+						+ " \"name\": \"BLOOD\",\r\n"
+						+ " \"description\": \"BLOOD TEST\"\r\n"
+						+ "}"))
+		.andExpect(MockMvcResultMatchers.status().isCreated());
+		
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void put() throws Exception {
+		Tests update = new Tests();
+		update.setName("FLU");
+		update.setDescription("FLU TEST");
+		
+		Mockito.when(repository.save(update)).thenReturn(update);
+		String content = writer.writeValueAsString(update);
+		
+		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
+				.put("/api/controller/tests/1")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content(content);
+		
+		mockMvc.perform(builder)
+		.andExpect(status().isCreated());
+		
+		//Exception
+		MockHttpServletRequestBuilder builder2 = MockMvcRequestBuilders
+				.put("/api/controller/tests/2")
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.content(content);
+		
+		mockMvc.perform(builder2)
+		.andExpect(status().isNotFound());
+	}
+	
+	@org.junit.jupiter.api.Test
+	public void delete() throws Exception {
+		//first is find by Id, that is in the @BeforeEach function
+		mockMvc.perform(MockMvcRequestBuilders
+				.delete("/api/controller/tests/1")
+				.contentType(MediaType.APPLICATION_JSON))
+		.andExpect(status().isOk());
+		
+		//Exception
 	}
 
-	@DisplayName("getById")
-	@Test
-	public void testGetById() {
-		Tests test = getTest();
-		testRepository.save(test);
-		Tests result = testRepository.findById(test.getId()).get();
-		assertEquals(test.getId(), result.getId());
-	}
-
-	@DisplayName("post")
-	@Test
-	public void testPost() {
-		Tests test = getTest();
-		testRepository.save(test);
-		Tests result = testRepository.findById(test.getId()).get();
-		assertEquals(test.getId(), result.getId());
-		assertEquals(test.getDescription(), result.getDescription());
-	}
-
-	@DisplayName("put")
-	@Test
-	public void testPut() {
-		Tests test = getTest();
-		testRepository.save(test);
-		Tests result = testRepository.findById(test.getId()).get();
-		assertEquals(test.getId(), result.getId());
-		assertEquals(test.getName(), result.getName());
-	}
-
-	@DisplayName("delete")
-	@Test
-	public void testDelete() {
-		Tests test = getTest();
-		testRepository.save(test);
-		testRepository.deleteById(test.getId());
-		List <Tests> result = new ArrayList<>();
-		testRepository.findAll().forEach(e -> result.add(e));
-		assertNotNull(result);
-//		assertEquals(result.size(), 0);
-	}
 }
