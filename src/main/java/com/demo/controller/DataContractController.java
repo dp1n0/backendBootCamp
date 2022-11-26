@@ -1,6 +1,7 @@
 package com.demo.controller;
 
 import java.util.List;
+import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -12,7 +13,9 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.model.Appointment;
 import com.demo.model.DataContract;
+import com.demo.repository.AppointmentRepository;
 import com.demo.repository.DataContractRepository;
 
 @RestController
@@ -20,12 +23,21 @@ import com.demo.repository.DataContractRepository;
 public class DataContractController {
 	@Autowired
 	private DataContractRepository dataContractRepository;
+	@Autowired
+	private AppointmentRepository appointmentRepository;
 	
 	@PostMapping("/contract/{id}")
 	public ResponseEntity<List<DataContract>> addContract(
 			@PathVariable(value = "id") Long id) {
+		Optional<Appointment> appointment = appointmentRepository.findById(id);
+		Optional<DataContract> data = dataContractRepository.findById(id);
+		
 		try {
-			return new ResponseEntity<>(dataContractRepository.addContract(id), HttpStatus.OK);
+			if (appointment.isPresent() && !data.isPresent()) {
+				return new ResponseEntity<>(dataContractRepository.addContract(id), HttpStatus.OK);
+			} else {
+				return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
+			}
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
