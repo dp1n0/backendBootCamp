@@ -2,6 +2,8 @@ package com.demo.controller;
 
 import static org.junit.jupiter.api.Assertions.*;
 
+import java.time.LocalDate;
+import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -15,17 +17,19 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 import com.demo.model.Appointment;
 import com.demo.repository.AppointmentRepository;
 
+import net.bytebuddy.asm.Advice.Local;
+
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
-public class AppointmentControllerTest1 {
+public class AppointmentControllerTest {
 	
 	@Autowired
 	AppointmentRepository appointmentRepository;
 
 	private Appointment getTest() {
 		Appointment appointment = new Appointment();
-		appointment.setDate_app(null);
-		appointment.setHour_app(null);
+		appointment.setDate_app(LocalDate.now());
+		appointment.setHour_app(LocalTime.now());
 		appointment.setId_affiliate(202L);
 		appointment.setId_test(106L);
 		return appointment;
@@ -80,6 +84,33 @@ public class AppointmentControllerTest1 {
 		List <Appointment> result = new ArrayList<>();
 		appointmentRepository.findAll().forEach(e -> result.add(e));
 		assertNotNull(result);
+//		assertNull(result);
 //		assertEquals(result.size(), 0);
+	}
+	
+	@DisplayName("getByAffiliatesId")
+	@Test
+	public void getByAffiliatesId() {
+		Appointment appointment = getTest();
+		appointmentRepository.save(appointment);
+		
+		long id = 202L;
+		List<Appointment> result = new ArrayList<Appointment>();
+		appointmentRepository.findAffiliateById(id).forEach(result::add);
+		
+		assertEquals(appointment.getId_affiliate(), id);
+	}
+	
+	@DisplayName("getByAffiliatesDate")
+	@Test
+	public void getByAffiliatesDate() {
+		Appointment appointment = getTest();
+		appointmentRepository.save(appointment);
+		
+		LocalDate date = LocalDate.now();
+		List<Appointment> result = new ArrayList<Appointment>();
+		appointmentRepository.findAffiliateByDate(date).forEach(result::add);
+		
+		assertEquals(appointment.getDate_app(), LocalDate.now());
 	}
 }

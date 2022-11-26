@@ -14,6 +14,7 @@ import org.springframework.boot.test.autoconfigure.orm.jpa.DataJpaTest;
 
 import com.demo.model.Affiliate;
 import com.demo.repository.AfilliateRepository;
+import org.springframework.web.bind.annotation.GetMapping;
 
 @DataJpaTest
 @AutoConfigureTestDatabase(replace = Replace.NONE)
@@ -31,6 +32,7 @@ public class AffiliatesControllerTest {
 	}
 	
 	@DisplayName("getList")
+	@GetMapping("/affiliates")
 	@org.junit.jupiter.api.Test
 	public void testGetList() {
 		Affiliate affiliate = getAffiliate();
