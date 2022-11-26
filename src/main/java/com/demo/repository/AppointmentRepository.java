@@ -40,6 +40,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 	
 	@Query(value = "select shema.appointment_seq.nextval from dual", nativeQuery = true)
 	public long getValSequence();
+	
+	@Query(value = "select id from appointments order by id desc fetch first 1 rows only;", nativeQuery = true)
+	public long getSeq();
 //	List<Appointment> findAffiliateById(String id_affiliate);
 //	List<Appointment> findAffiliateById(@Param("id_affiliate") int id_affiliate);
 }

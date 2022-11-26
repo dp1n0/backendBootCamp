@@ -61,11 +61,14 @@ public class AppointmentController {
 			} catch (Exception e) {
 				
 			}
+			System.out.println(appointment);
+//			long id = appointmentRepository.getSeq();
+			System.out.println(appointmentRepository.getSeq());
 			return new ResponseEntity<>(appointmentRepository.save(appointment), HttpStatus.CREATED);
-			
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
+		
 	}
 	
 	@PutMapping("/appointment/{id}")
