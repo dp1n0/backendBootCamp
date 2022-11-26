@@ -53,17 +53,6 @@ public class AppointmentController {
 	public ResponseEntity<Appointment> post(@RequestBody Appointment appointment) {
 //		appointmentRepository.addContract(appointment.getId());
 		try {
-			try {
-//				appointmentRepository.addContract((long) 227);
-//				appointmentRepository.addContract(appointmentRepository.getValSequence());
-//				System.out.println(appointmentRepository.getValSequence());
-//				appointmentRepository.addContract(appointment.getId());
-			} catch (Exception e) {
-				
-			}
-//			System.out.println(appointment);
-//			long id = appointmentRepository.getSeq();
-//			System.out.println(appointmentRepository.getSeq());
 			return new ResponseEntity<>(appointmentRepository.save(appointment), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
