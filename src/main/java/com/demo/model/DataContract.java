@@ -36,12 +36,10 @@ public class DataContract {
 	private LocalTime hour_app;
 	
 	public DataContract() {
-		super();
 	}
 	
 	public DataContract(String name, String description, String email, int age, LocalDate date_app,
 			LocalTime hour_app) {
-		super();
 		this.name = name;
 		this.description = description;
 		this.email = email;

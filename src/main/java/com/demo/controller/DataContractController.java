@@ -27,14 +27,14 @@ public class DataContractController {
 		try {
 			return new ResponseEntity<>(dataContractRepository.addContract(id), HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.OK);
+			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 	}
 	
 	@GetMapping("/contract")
 	public ResponseEntity<List<DataContract>> getContract() {
 		try {
-			return new ResponseEntity<>(dataContractRepository.findAll(), HttpStatus.OK);
+			return new ResponseEntity<>(dataContractRepository.findAllByOrderByIdAsc(), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 		}
@@ -46,7 +46,7 @@ public class DataContractController {
 		try {
 			return new ResponseEntity<>(dataContractRepository.updateContract(id), HttpStatus.OK);
 		} catch (Exception e) {
-			return new ResponseEntity<>(null, HttpStatus.OK);
+			return new ResponseEntity<>(null, HttpStatus.NOT_FOUND);
 		}
 	}
 }
