@@ -29,4 +29,6 @@ public interface DataContractRepository extends JpaRepository<DataContract, Long
 			+ "where id = ?1;", nativeQuery = true)
 	List<DataContract> updateContract(long id);
 	
+	public List<DataContract> findAllByOrderByIdAsc();
+	
 }
