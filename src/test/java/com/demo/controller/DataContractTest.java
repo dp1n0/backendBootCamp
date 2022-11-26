@@ -8,6 +8,7 @@ import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Optional;
 
 import org.junit.jupiter.api.BeforeEach;
 import org.mockito.Mockito;
@@ -20,7 +21,9 @@ import org.springframework.test.web.servlet.request.MockHttpServletRequestBuilde
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 
+import com.demo.model.Appointment;
 import com.demo.model.DataContract;
+import com.demo.repository.AppointmentRepository;
 import com.demo.repository.DataContractRepository;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
@@ -33,6 +36,8 @@ public class DataContractTest {
 	
 	@MockBean
 	private DataContractRepository repository;
+	@MockBean
+	private AppointmentRepository appointmentRepository;
 
 	ObjectMapper mapper = new ObjectMapper();
 	ObjectWriter writer = mapper.writer();
@@ -52,9 +57,18 @@ public class DataContractTest {
 		List<DataContract> list = new ArrayList<>();
 		list.add(contract);
 		
+		Appointment appointment = new Appointment();
+		appointment.setDate_app(LocalDate.now());
+		appointment.setHour_app(LocalTime.now());
+		appointment.setId_affiliate(1);
+		appointment.setId_test(100);
+		
+		Optional<Appointment> optional = Optional.of(appointment);
+		
 		Mockito.when(repository.findAllByOrderByIdAsc()).thenReturn(list);
 		Mockito.when(repository.addContract(1L)).thenReturn(list);
 		Mockito.when(repository.updateContract(1L)).thenReturn(list);
+		Mockito.when(appointmentRepository.findById(1L)).thenReturn(optional);
 	}
 	
 	@org.junit.jupiter.api.Test
