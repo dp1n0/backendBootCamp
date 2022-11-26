@@ -2,12 +2,19 @@ package com.demo.model;
 
 import java.time.LocalDate;
 import java.time.LocalTime;
+import java.util.HashSet;
+import java.util.Set;
 
+import javax.persistence.CascadeType;
 import javax.persistence.Column;
 import javax.persistence.Entity;
+import javax.persistence.FetchType;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.JoinTable;
+import javax.persistence.ManyToMany;
 import javax.persistence.Table;
 
 import org.springframework.format.annotation.DateTimeFormat;
@@ -32,6 +39,17 @@ public class Appointment {
 	private long id_test;
 	@Column(name = "id_affiliate")
 	private long id_affiliate;
+	
+//	@ManyToMany(fetch = FetchType.EAGER ,
+//			cascade = {
+//			CascadeType.PERSIST,
+//			CascadeType.MERGE
+//	})
+//	@JoinTable(
+//			name = "data_contract_1",
+//			joinColumns = {@JoinColumn(name = "id_affiliate")},
+//			inverseJoinColumns = {@JoinColumn(name = "id")})
+//	private Set<Affiliate> affiliatesSet = new HashSet<>();
 	
 	public Appointment() {
 		super();
@@ -90,4 +108,12 @@ public class Appointment {
 		return "Appoinment [id=" + id + ", date_app=" + date_app + ", hour_app=" + hour_app + ", id_test=" + id_test
 				+ ", id_affiliate=" + id_affiliate + "]";
 	}
+
+//	public Set<Affiliate> getAffiliates() {
+//		return affiliatesSet;
+//	}
+//	
+//	public void enroll (Affiliate affiliate) {
+//		affiliatesSet.add(affiliate);
+//	}
 }

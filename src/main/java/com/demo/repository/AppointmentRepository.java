@@ -8,6 +8,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.stereotype.Repository;
 
 import com.demo.model.Appointment;
+import com.demo.model.DataContract;
 
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
@@ -30,13 +31,6 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 //			+ "where a.id_affiliate = af.id "
 //			+ "and t.id = a.id_test "
 //			+ "and a.id = ?1", nativeQuery = true)
-	@Query(value = "insert into data_contract "
-			+ "select appointments.id, affiliates.name, tests.description, affiliates.mail, affiliates.age, appointments.date_app, appointments.hour_app "
-			+ "from appointments, affiliates, tests "
-			+ "where appointments.id_affiliate = affiliates.id "
-			+ "and tests.id = appointments.id_test "
-			+ "and appointments.id = ?1", nativeQuery = true)
-	List<Appointment> addContract(long id);
 	
 	@Query(value = "select shema.appointment_seq.nextval from dual", nativeQuery = true)
 	public long getValSequence();

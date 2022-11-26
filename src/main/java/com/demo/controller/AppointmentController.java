@@ -28,7 +28,7 @@ import com.demo.repository.AppointmentRepository;
 public class AppointmentController {
 	@Autowired
 	private AppointmentRepository appointmentRepository;
-
+	
 	@GetMapping("/appointment")
 	public ResponseEntity<List<Appointment>> getList() {
 		try {
@@ -51,19 +51,19 @@ public class AppointmentController {
 	
 	@PostMapping("/appointment")
 	public ResponseEntity<Appointment> post(@RequestBody Appointment appointment) {
-		appointmentRepository.addContract(appointment.getId());
+//		appointmentRepository.addContract(appointment.getId());
 		try {
 			try {
 //				appointmentRepository.addContract((long) 227);
 //				appointmentRepository.addContract(appointmentRepository.getValSequence());
 //				System.out.println(appointmentRepository.getValSequence());
-				appointmentRepository.addContract(appointment.getId());
+//				appointmentRepository.addContract(appointment.getId());
 			} catch (Exception e) {
 				
 			}
-			System.out.println(appointment);
+//			System.out.println(appointment);
 //			long id = appointmentRepository.getSeq();
-			System.out.println(appointmentRepository.getSeq());
+//			System.out.println(appointmentRepository.getSeq());
 			return new ResponseEntity<>(appointmentRepository.save(appointment), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -131,4 +131,15 @@ public class AppointmentController {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
+	
+//	@PutMapping("/{appointmentId}/affiliate/{affiliateId}")
+//	Appointment enrrollAffiliateToSubject(
+//			@PathVariable long appointmentId, 
+//			@PathVariable long affiliateId) {
+//		Appointment appointment = appointmentRepository.findById(appointmentId).get();
+//		Affiliate affiliate = affiliateRepository.findById(affiliateId).get();
+//		appointment.enroll(affiliate);
+//		return appointmentRepository.save(appointment); 
+//	}
+	
 }
