@@ -194,25 +194,27 @@ public class AppointmentControllerTest {
 	@org.junit.jupiter.api.Test
 	public void getByAffiliatesDate() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders
-				.get("/api/controller/appointment/date/2022-11-25")
+				.get("/api/controller/appointment/date/2022-11-26")
 				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andExpect(jsonPath("$").isNotEmpty());
-		
-		//No content - Empty
-		mockMvc.perform(MockMvcRequestBuilders
-				.get("/api/controller/appointment/date/2022-11-26")
-				.contentType(MediaType.APPLICATION_JSON))
-		.andExpect(MockMvcResultMatchers.status().isNoContent());
 		
 		//Exeption - Error server
 		//The exception will generate when the user enter a invalid information, for example
 		//date incomplete, o a text string
 		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenThrow(RuntimeException.class);
 		mockMvc.perform(MockMvcRequestBuilders
-				.get("/api/controller/appointment/date/2022-11-25")
+				.get("/api/controller/appointment/date/2022-11-26")
 				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(MockMvcResultMatchers.status().isInternalServerError());
+		
+		//No content - Empty
+//		List<Appointment> list = new ArrayList<>();
+//		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenReturn(list);
+//		mockMvc.perform(MockMvcRequestBuilders
+//				.get("/api/controller/appointment/date/2022-11-26")
+//				.contentType(MediaType.APPLICATION_JSON))
+//		.andExpect(MockMvcResultMatchers.status().isNoContent());
 	}
 
 }
