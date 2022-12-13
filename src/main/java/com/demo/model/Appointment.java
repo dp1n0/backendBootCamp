@@ -8,11 +8,16 @@ import javax.persistence.Entity;
 import javax.persistence.GeneratedValue;
 import javax.persistence.GenerationType;
 import javax.persistence.Id;
+import javax.persistence.JoinColumn;
+import javax.persistence.OneToOne;
 import javax.persistence.Table;
 
+import org.hibernate.annotations.OnDelete;
+import org.hibernate.annotations.OnDeleteAction;
 import org.springframework.format.annotation.DateTimeFormat;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 
 @Entity
 @Table(name = "appointments")
@@ -23,90 +28,65 @@ public class Appointment {
 	@Column(name="date_app")
 	@DateTimeFormat(pattern = "dd/MM/yyyy")
 	@JsonFormat(pattern = "dd/MM/yyyy", timezone =  "GMT -5")
-	private LocalDate date_app;
+	private LocalDate dateA;
 	@Column(name = "hour_app")
 	@DateTimeFormat(pattern = "hh:mm")
 //	@JsonFormat(pattern = "hh:mm", timezone =  "GMT -5")
-	private LocalTime hour_app;
-	@Column(name = "id_test")
-	private long id_test;
-	@Column(name = "id_affiliate")
-	private long id_affiliate;
-	
-//	@ManyToMany(fetch = FetchType.EAGER ,
-//			cascade = {
-//			CascadeType.PERSIST,
-//			CascadeType.MERGE
-//	})
-//	@JoinTable(
-//			name = "data_contract_1",
-//			joinColumns = {@JoinColumn(name = "id_affiliate")},
-//			inverseJoinColumns = {@JoinColumn(name = "id")})
-//	private Set<Affiliate> affiliatesSet = new HashSet<>();
+	private LocalTime hourA;
+	@JoinColumn(name = "id_test")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnoreProperties
+	@OneToOne
+	private Tests idTest;
+	@JoinColumn(name = "id_affiliate")
+	@OnDelete(action = OnDeleteAction.CASCADE)
+	@JsonIgnoreProperties
+	@OneToOne
+	private Affiliate idAffiliate;
 	
 	public Appointment() {
-		super();
 	}
 
-	public Appointment(LocalDate date_app, LocalTime  hour_app, long id_test, long id_affiliate) {
-		super();
-		this.date_app = date_app;
-		this.hour_app = hour_app;
-		this.id_test = id_test;
-		this.id_affiliate = id_affiliate;
+	public Appointment(LocalDate dateA, LocalTime hourA, Tests idTest, Affiliate idAffiliate) {
+		this.dateA = dateA;
+		this.hourA = hourA;
+		this.idTest = idTest;
+		this.idAffiliate = idAffiliate;
 	}
-	
-//	public void setId(long id) {
-//		this.id = id;
-//	}
+
+	public LocalDate getDateA() {
+		return dateA;
+	}
+
+	public void setDateA(LocalDate dateA) {
+		this.dateA = dateA;
+	}
+
+	public LocalTime getHourA() {
+		return hourA;
+	}
+
+	public void setHourA(LocalTime hourA) {
+		this.hourA = hourA;
+	}
+
+	public Tests getIdTest() {
+		return idTest;
+	}
+
+	public void setIdTest(Tests idTest) {
+		this.idTest = idTest;
+	}
+
+	public Affiliate getIdAffiliate() {
+		return idAffiliate;
+	}
+
+	public void setIdAffiliate(Affiliate idAffiliate) {
+		this.idAffiliate = idAffiliate;
+	}
 
 	public long getId() {
 		return id;
-	}
-	
-	public LocalDate getDate_app() {
-		return date_app;
-	}
-
-	public void setDate_app(LocalDate date_app) {
-		this.date_app = date_app;
-	}
-
-	public LocalTime getHour_app() {
-		return hour_app;
-	}
-
-	public void setHour_app(LocalTime hour_app) {
-		this.hour_app = hour_app;
-	}
-
-	public long getId_test() {
-		return id_test;
-	}
-
-	public void setId_test(long id_test) {
-		this.id_test = id_test;
-	}
-
-	public long getId_affiliate() {
-		return id_affiliate;
-	}
-
-	public void setId_affiliate(long id_affiliate) {
-		this.id_affiliate = id_affiliate;
-	}
-
-	@Override
-	public String toString() {
-		return "Appoinment [id=" + id + ", date_app=" + date_app + ", hour_app=" + hour_app + ", id_test=" + id_test
-				+ ", id_affiliate=" + id_affiliate + "]";
-	}
-
-//	public Set<Affiliate> getAffiliates() {
-//		return affiliatesSet;
-//	}
-//	
-//	public void enroll (Affiliate affiliate) {
-//		affiliatesSet.add(affiliate);
-//	}
+	}	
 }
