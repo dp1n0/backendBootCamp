@@ -23,16 +23,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import com.demo.model.Tests;
-import com.demo.repository.TestsRepository;
+import com.demo.service.TestService;
 
 @WebMvcTest(TestsController.class)
 public class TestControllerTest {
-	
 	@Autowired
 	private MockMvc mockMvc;
 	
 	@MockBean
-	private TestsRepository repository;
+	private TestService repository;
 
 	ObjectMapper mapper = new ObjectMapper();
 	ObjectWriter writer = mapper.writer();
@@ -50,9 +49,9 @@ public class TestControllerTest {
 		
 		Optional<Tests> optional = Optional.of(test);
 		
-		Mockito.when(repository.findAll()).thenReturn(tests);
-		Mockito.when(repository.findById(1L)).thenReturn(optional);
-		Mockito.when(repository.save(test)).thenReturn(test);
+		Mockito.when(repository.getList()).thenReturn(tests);
+		Mockito.when(repository.getById(1L)).thenReturn(optional);
+		Mockito.when(repository.post(test)).thenReturn(test);
 	}
 	
 	@org.junit.jupiter.api.Test
@@ -64,7 +63,7 @@ public class TestControllerTest {
 		.andExpect(jsonPath("$", hasSize(1)));
 		
 		//Exception
-		Mockito.when(repository.findAll()).thenThrow(RuntimeException.class);
+		Mockito.when(repository.getList()).thenThrow(RuntimeException.class);
 		mockMvc.perform(MockMvcRequestBuilders
 				.get("/api/controller/tests")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -105,7 +104,7 @@ public class TestControllerTest {
 		update.setName("FLU");
 		update.setDescription("FLU TEST");
 		
-		Mockito.when(repository.save(update)).thenReturn(update);
+		Mockito.when(repository.put(update)).thenReturn(update);
 		String content = writer.writeValueAsString(update);
 		
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
@@ -138,5 +137,4 @@ public class TestControllerTest {
 		
 		//Exception
 	}
-
 }

@@ -3,7 +3,6 @@ package com.demo.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,23 +16,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.model.Tests;
-import com.demo.repository.TestsRepository;
+import com.demo.service.TestService;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/controller")
 public class TestsController {
-	@Autowired
-	private TestsRepository testsRepository;
+private TestService testService;
 	
-	public TestsController(TestsRepository testsRepository) {
-		this.testsRepository = testsRepository;
+	public TestsController(TestService testService) {
+		super();
+		this.testService = testService;
 	}
 
 	@GetMapping("/tests")
 	public ResponseEntity<List<Tests>> getList() {
 		try {
-			return new ResponseEntity<>(testsRepository.findAll(), HttpStatus.OK);
+			return new ResponseEntity<>(testService.getList(), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 		}
@@ -41,7 +40,7 @@ public class TestsController {
 	
 	@GetMapping("/tests/{id}")
 	public ResponseEntity<Tests> getById(@PathVariable(value = "id") Long id) {
-		Optional<Tests> test = testsRepository.findById(id);
+		Optional<Tests> test = testService.getById(id);
 
 		if (test.isPresent()) {
 			return new ResponseEntity<>(test.get(), HttpStatus.OK);
@@ -53,7 +52,7 @@ public class TestsController {
 	@PostMapping("/tests")
 	public ResponseEntity<Tests> post(@RequestBody Tests test) {
 		try {
-			return new ResponseEntity<>(testsRepository.save(test), HttpStatus.CREATED);
+			return new ResponseEntity<>(testService.post(test), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -62,13 +61,13 @@ public class TestsController {
 	@PutMapping("/tests/{id}")
 	public ResponseEntity<Tests> put(@PathVariable(value = "id") Long id,
 			@RequestBody Tests testDetails) {
-		Optional<Tests> _test = testsRepository.findById(id);
+		Optional<Tests> _test = testService.getById(id);
 		
 		if (_test.isPresent()) {
 			Tests test = _test.get();
 			test.setName(testDetails.getName());
 			test.setDescription(testDetails.getDescription());
-			return new ResponseEntity<>(testsRepository.save(test), HttpStatus.CREATED);
+			return new ResponseEntity<>(testService.put(test), HttpStatus.CREATED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -77,7 +76,7 @@ public class TestsController {
 	@DeleteMapping("/tests/{id}")
 	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) {
 		try {
-			testsRepository.deleteById(id);
+			testService.delete(id);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);

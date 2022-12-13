@@ -3,7 +3,6 @@ package com.demo.controller;
 import java.util.List;
 import java.util.Optional;
 
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.CrossOrigin;
@@ -17,19 +16,23 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.demo.model.Affiliate;
-import com.demo.repository.AffiliateRepository;
+import com.demo.service.AffiliateService;
 
 @CrossOrigin(origins = "http://localhost:8080")
 @RestController
 @RequestMapping("/api/controller")
 public class AffiliatesController {
-	@Autowired
-	private AffiliateRepository afilliateRepository;
+private AffiliateService affiliateService;
 	
+	public AffiliatesController(AffiliateService affiliateService) {
+		super();
+		this.affiliateService = affiliateService;
+	}
+
 	@GetMapping("/affiliates")
 	public ResponseEntity<List<Affiliate>> getList() {
 		try {
-			return new ResponseEntity<>(afilliateRepository.findAll(), HttpStatus.OK);
+			return new ResponseEntity<>(affiliateService.getList(), HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.NO_CONTENT);
 		}
@@ -37,7 +40,7 @@ public class AffiliatesController {
 	
 	@GetMapping("/affiliates/{id}")
 	public ResponseEntity<Affiliate> getById(@PathVariable(value = "id") Long id) {
-		Optional<Affiliate> affiliate = afilliateRepository.findById(id);
+		Optional<Affiliate> affiliate = affiliateService.getById(id);
 
 		if (affiliate.isPresent()) {
 			return new ResponseEntity<>(affiliate.get(), HttpStatus.OK);
@@ -49,7 +52,7 @@ public class AffiliatesController {
 	@PostMapping("/affiliates")
 	public ResponseEntity<Affiliate> post(@RequestBody Affiliate affiliate) {
 		try {
-			return new ResponseEntity<>(afilliateRepository.save(affiliate), HttpStatus.CREATED);
+			return new ResponseEntity<>(affiliateService.post(affiliate), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -58,7 +61,7 @@ public class AffiliatesController {
 	@PutMapping("/affiliates/{id}")
 	public ResponseEntity<Affiliate> put(@PathVariable(value = "id") Long id,
 			@RequestBody Affiliate affiliateDetails) {
-		Optional<Affiliate> _test = afilliateRepository.findById(id);
+		Optional<Affiliate> _test = affiliateService.getById(id);
 		
 		if (_test.isPresent()) {
 			Affiliate affiliate = _test.get();
@@ -66,7 +69,7 @@ public class AffiliatesController {
 			affiliate.setName(affiliateDetails.getName());
 			affiliate.setAge(affiliateDetails.getAge());
 			affiliate.setMail(affiliateDetails.getMail());
-			return new ResponseEntity<>(afilliateRepository.save(affiliate), HttpStatus.CREATED);
+			return new ResponseEntity<>(affiliateService.put(affiliate), HttpStatus.CREATED);
 		} else {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 		}
@@ -76,7 +79,7 @@ public class AffiliatesController {
 	@DeleteMapping("/affiliates/{id}")
 	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) {
 		try {
-			afilliateRepository.deleteById(id);
+			affiliateService.delete(id);
 			return new ResponseEntity<>(HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NO_CONTENT);

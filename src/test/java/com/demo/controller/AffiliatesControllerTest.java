@@ -22,16 +22,15 @@ import org.springframework.test.web.servlet.result.MockMvcResultMatchers;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.demo.model.Affiliate;
-import com.demo.repository.AffiliateRepository;
+import com.demo.service.AffiliateService;
 
 @WebMvcTest(AffiliatesController.class)
 public class AffiliatesControllerTest {
-	
 	@Autowired
 	private MockMvc mockMvc;
 	
 	@MockBean
-	private AffiliateRepository repository;
+	private AffiliateService repository;
 
 	ObjectMapper mapper = new ObjectMapper();
 	ObjectWriter writer = mapper.writer();
@@ -50,9 +49,9 @@ public class AffiliatesControllerTest {
 		
 		Optional<Affiliate> optional = Optional.of(affiliate);
 		
-		Mockito.when(repository.findAll()).thenReturn(list);
-		Mockito.when(repository.findById(1L)).thenReturn(optional);
-		Mockito.when(repository.save(affiliate)).thenReturn(affiliate);
+		Mockito.when(repository.getList()).thenReturn(list);
+		Mockito.when(repository.getById(1L)).thenReturn(optional);
+		Mockito.when(repository.post(affiliate)).thenReturn(affiliate);
 	}
 	
 	@org.junit.jupiter.api.Test
@@ -64,7 +63,7 @@ public class AffiliatesControllerTest {
 		.andExpect(jsonPath("$", hasSize(1)));
 		
 		//Exception
-		Mockito.when(repository.findAll()).thenThrow(RuntimeException.class);
+		Mockito.when(repository.getList()).thenThrow(RuntimeException.class);
 		mockMvc.perform(MockMvcRequestBuilders
 				.get("/api/controller/affiliates")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -110,7 +109,7 @@ public class AffiliatesControllerTest {
 		affiliate.setAge(40);
 		affiliate.setMail("sofia@gmail.com");
 		
-		Mockito.when(repository.save(update)).thenReturn(update);
+		Mockito.when(repository.put(update)).thenReturn(update);
 		String content = writer.writeValueAsString(update);
 		
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
@@ -143,5 +142,4 @@ public class AffiliatesControllerTest {
 		
 		//Exception
 	}
-
 }

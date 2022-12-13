@@ -25,16 +25,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
 import com.demo.model.Appointment;
-import com.demo.repository.AppointmentRepository;
+import com.demo.service.AppointmentService;
 
 @WebMvcTest(AppointmentController.class)
 public class AppointmentControllerTest {
-	
 	@Autowired
 	private MockMvc mockMvc;
 	
 	@MockBean
-	private AppointmentRepository repository;
+	private AppointmentService repository;
 
 	ObjectMapper mapper = new ObjectMapper();
 	ObjectWriter writer = mapper.writer();
@@ -44,21 +43,21 @@ public class AppointmentControllerTest {
 	@BeforeEach
 	void setUp() {
 		appointment = new Appointment();
-		appointment.setDate_app(LocalDate.now());
-		appointment.setHour_app(LocalTime.now());
-		appointment.setId_affiliate(1);
-		appointment.setId_test(100);
+		appointment.setDateA(LocalDate.now());
+		appointment.setHourA(LocalTime.now());
+//		appointment.setIdAffiliate(Affiliate);
+//		appointment.setIdTest(100);
 		
 		List<Appointment> list = new ArrayList<>();
 		list.add(appointment);
 		
 		Optional<Appointment> optional = Optional.of(appointment);
 		
-		Mockito.when(repository.findAll()).thenReturn(list);
-		Mockito.when(repository.findById(1L)).thenReturn(optional);
-		Mockito.when(repository.save(appointment)).thenReturn(appointment);
-		Mockito.when(repository.findAffiliateById(1L)).thenReturn(list);
-		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenReturn(list);
+		Mockito.when(repository.getList()).thenReturn(list);
+		Mockito.when(repository.getById(1L)).thenReturn(optional);
+		Mockito.when(repository.post(appointment)).thenReturn(appointment);
+		Mockito.when(repository.getByAffiliatesId(1L)).thenReturn(list);
+		Mockito.when(repository.getByAffiliatesDate(LocalDate.now())).thenReturn(list);
 	}
 	
 	@org.junit.jupiter.api.Test
@@ -70,7 +69,7 @@ public class AppointmentControllerTest {
 		.andExpect(jsonPath("$", hasSize(1)));
 		
 		//Exception
-		Mockito.when(repository.findAll()).thenThrow(RuntimeException.class);
+		Mockito.when(repository.getList()).thenThrow(RuntimeException.class);
 		mockMvc.perform(MockMvcRequestBuilders
 				.get("/api/controller/appointment")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -97,10 +96,10 @@ public class AppointmentControllerTest {
 //		Appointment update = new Appointment();
 //		LocalDate date = LocalDate.of(2022, 11, 25);
 //		LocalTime time = LocalTime.of(8, 0);
-//		update.setDate_app(date);
-//		update.setHour_app(time);
-//		update.setId_affiliate(2);
-//		update.setId_test(103);
+//		update.setDateA(date);
+//		update.setHourA(time);
+//		update.setIdAffiliate(2);
+//		update.setIdTest(103);
 //		
 //		String content = writer.writeValueAsString(update);
 		
@@ -120,12 +119,12 @@ public class AppointmentControllerTest {
 	@org.junit.jupiter.api.Test
 	public void put() throws Exception {
 		Appointment update = new Appointment();
-		update.setDate_app(LocalDate.now());
-		update.setHour_app(LocalTime.now());
-		update.setId_affiliate(2);
-		update.setId_test(103);
+		update.setDateA(LocalDate.now());
+		update.setHourA(LocalTime.now());
+//		update.setIdAffiliate(2);
+//		update.setIdTest(103);
 		
-		Mockito.when(repository.save(update)).thenReturn(update);
+		Mockito.when(repository.put(update)).thenReturn(update);
 //		String content = writer.writeValueAsString(update);
 		
 		MockHttpServletRequestBuilder builder = MockMvcRequestBuilders
@@ -178,7 +177,7 @@ public class AppointmentControllerTest {
 		.andExpect(jsonPath("$").isNotEmpty());
 		
 		//Exeption - Error server
-		Mockito.when(repository.findAffiliateById(2L)).thenThrow(RuntimeException.class);
+		Mockito.when(repository.getByAffiliatesId(2L)).thenThrow(RuntimeException.class);
 		mockMvc.perform(MockMvcRequestBuilders
 				.get("/api/controller/appointment/affiliate/2")
 				.contentType(MediaType.APPLICATION_JSON))
@@ -194,7 +193,7 @@ public class AppointmentControllerTest {
 	@org.junit.jupiter.api.Test
 	public void getByAffiliatesDate() throws Exception {
 		mockMvc.perform(MockMvcRequestBuilders
-				.get("/api/controller/appointment/date/2022-11-26")
+				.get("/api/controller/appointment/date/2022-12-12")
 				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(MockMvcResultMatchers.status().isOk())
 		.andExpect(jsonPath("$").isNotEmpty());
@@ -202,9 +201,9 @@ public class AppointmentControllerTest {
 		//Exeption - Error server
 		//The exception will generate when the user enter a invalid information, for example
 		//date incomplete, o a text string
-		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenThrow(RuntimeException.class);
+		Mockito.when(repository.getByAffiliatesDate(LocalDate.now())).thenThrow(RuntimeException.class);
 		mockMvc.perform(MockMvcRequestBuilders
-				.get("/api/controller/appointment/date/2022-11-26")
+				.get("/api/controller/appointment/date/2022-12-12")
 				.contentType(MediaType.APPLICATION_JSON))
 		.andExpect(MockMvcResultMatchers.status().isInternalServerError());
 		
@@ -212,9 +211,8 @@ public class AppointmentControllerTest {
 //		List<Appointment> list = new ArrayList<>();
 //		Mockito.when(repository.findAffiliateByDate(LocalDate.now())).thenReturn(list);
 //		mockMvc.perform(MockMvcRequestBuilders
-//				.get("/api/controller/appointment/date/2022-11-26")
+//				.get("/api/controller/appointment/date/2022-12-12")
 //				.contentType(MediaType.APPLICATION_JSON))
 //		.andExpect(MockMvcResultMatchers.status().isNoContent());
 	}
-
 }
