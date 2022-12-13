@@ -13,7 +13,6 @@ public class Affiliate {
 	
 	@Id
 	@GeneratedValue(strategy = GenerationType.IDENTITY)
-//	@Column(name = "id")
 	private long id;
 	
 	@Column(name = "name")
@@ -24,30 +23,14 @@ public class Affiliate {
 	
 	@Column(name = "mail")
 	private String mail;
-	
-//	@ManyToMany(fetch = FetchType.EAGER, 
-//			cascade = {
-//					CascadeType.PERSIST,
-//					CascadeType.MERGE
-//			},
-//			mappedBy = "affiliatesSet")
-//	@JsonIgnore
-//	Set<Appointment> appointments = new HashSet<>();
 
 	public Affiliate() {
-		super();
 	}
 
-	public Affiliate(long id, String name, int age, String mail) {
-		super();
-		this.id = id;
+	public Affiliate(String name, int age, String mail) {
 		this.name = name;
 		this.age = age;
 		this.mail = mail;
-	}
-
-	public long getId() {
-		return id;
 	}
 
 	public String getName() {
@@ -74,12 +57,7 @@ public class Affiliate {
 		this.mail = mail;
 	}
 
-	@Override
-	public String toString() {
-		return "Affiliate [id=" + id + ", name=" + name + ", age=" + age + ", mail=" + mail + "]";
+	public long getId() {
+		return id;
 	}
-
-//	public Set<Appointment> getAppointments() {
-//		return appointments;
-//	}
 }
