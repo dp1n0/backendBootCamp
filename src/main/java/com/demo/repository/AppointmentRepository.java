@@ -12,6 +12,9 @@ import com.demo.model.Appointment;
 @Repository
 public interface AppointmentRepository extends JpaRepository<Appointment, Long> {
 //	List<Appointment> findByAffiliate(long id_affiliate);
+	List<Appointment> findBydateA(LocalDate date);
+	List<Appointment> findByidAffiliate(Long id);
+	
 	@Query(value = "select * from Appointments where id_affiliate = ?1", nativeQuery = true)
 	List<Appointment> findAffiliateById(long id);
 	
@@ -23,9 +26,9 @@ public interface AppointmentRepository extends JpaRepository<Appointment, Long> 
 			+ "order by id_affiliate", nativeQuery = true)
 	List<Appointment> findAffiliateByDate(LocalDate date);
 	
-	@Query(value = "select shema.appointment_seq.nextval from dual", nativeQuery = true)
-	public long getValSequence();
-	
-	@Query(value = "select id from appointments order by id desc fetch first 1 rows only;", nativeQuery = true)
-	public long getSeq();
+//	@Query(value = "select shema.appointment_seq.nextval from dual", nativeQuery = true)
+//	public long getValSequence();
+//	
+//	@Query(value = "select id from appointments order by id desc fetch first 1 rows only;", nativeQuery = true)
+//	public long getSeq();
 }
