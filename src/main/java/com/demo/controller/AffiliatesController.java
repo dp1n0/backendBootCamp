@@ -1,7 +1,6 @@
 package com.demo.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.exception.ResourceNoContentException;
+import com.demo.exception.ResourceNotFoundException;
 import com.demo.model.Affiliate;
 import com.demo.service.AffiliateService;
 
@@ -22,7 +23,7 @@ import com.demo.service.AffiliateService;
 @RestController
 @RequestMapping("/api/controller")
 public class AffiliatesController {
-private AffiliateService affiliateService;
+	private AffiliateService affiliateService;
 	
 	public AffiliatesController(AffiliateService affiliateService) {
 		super();
@@ -39,14 +40,12 @@ private AffiliateService affiliateService;
 	}
 	
 	@GetMapping("/affiliates/{id}")
-	public ResponseEntity<Affiliate> getById(@PathVariable(value = "id") Long id) {
-		Optional<Affiliate> affiliate = affiliateService.getById(id);
-
-		if (affiliate.isPresent()) {
-			return new ResponseEntity<>(affiliate.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<Affiliate> getById(@PathVariable(value = "id") Long id) 
+			throws ResourceNotFoundException {
+		Affiliate affiliate = affiliateService.getById(id).
+				orElseThrow(() -> new ResourceNotFoundException
+						("Affiliate not found for this id :: " + id));
+		return ResponseEntity.ok().body(affiliate);
 	}
 	
 	@PostMapping("/affiliates")
@@ -60,29 +59,25 @@ private AffiliateService affiliateService;
 	
 	@PutMapping("/affiliates/{id}")
 	public ResponseEntity<Affiliate> put(@PathVariable(value = "id") Long id,
-			@RequestBody Affiliate affiliateDetails) {
-		Optional<Affiliate> _test = affiliateService.getById(id);
+			@RequestBody Affiliate affiliateDetails) throws ResourceNotFoundException {
+		Affiliate affiliate = affiliateService.getById(id).
+				orElseThrow(() -> new ResourceNotFoundException
+						("Affiliate not found for this id :: " + id));
 		
-		if (_test.isPresent()) {
-			Affiliate affiliate = _test.get();
-			
-			affiliate.setName(affiliateDetails.getName());
-			affiliate.setAge(affiliateDetails.getAge());
-			affiliate.setMail(affiliateDetails.getMail());
-			return new ResponseEntity<>(affiliateService.put(affiliate), HttpStatus.CREATED);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		affiliate.setName(affiliateDetails.getName());
+		affiliate.setAge(affiliateDetails.getAge());
+		affiliate.setMail(affiliateDetails.getMail());
+		
+		return new ResponseEntity<>(affiliateService.put(affiliate), HttpStatus.CREATED);
 	}
 	
 	
 	@DeleteMapping("/affiliates/{id}")
-	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) {
-		try {
-			affiliateService.delete(id);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
+	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) 
+			throws ResourceNoContentException {
+		Affiliate affiliate = affiliateService.getById(id).orElseThrow(() -> new ResourceNoContentException
+				("Affiliate no content for this id :: " + id));
+		affiliateService.delete(id);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }

@@ -2,7 +2,6 @@ package com.demo.controller;
 
 import java.time.LocalDate;
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
@@ -17,6 +16,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.exception.ResourceNoContentException;
+import com.demo.exception.ResourceNotFoundException;
 import com.demo.model.Appointment;
 import com.demo.service.AppointmentService;
 
@@ -40,24 +41,17 @@ private AppointmentService appointmentService;
 	}
 	
 	@GetMapping("/appointment/{id}")
-	public ResponseEntity<Appointment> getById(@PathVariable(value = "id") Long id) {
-		Optional<Appointment> appointment = appointmentService.getById(id);
-
-		if (appointment.isPresent()) {
-			return new ResponseEntity<>(appointment.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<Appointment> getById(@PathVariable(value = "id") Long id) 
+			throws ResourceNotFoundException {
+		Appointment appointment = appointmentService.getById(id).orElseThrow(() -> new ResourceNotFoundException
+				("Test not found for this id :: " + id));
+		return ResponseEntity.ok(appointment);
 	}
 	
 	@PostMapping("/appointment")
 	public ResponseEntity<Appointment> post(@RequestBody Appointment appointment) {
 //		appointmentRepository.addContract(appointment.getId());
 		try {
-//			Long idT = appointment.getIdTest().getId();
-//			System.out.println(idT);
-//			Tests test = testsRepository.findById(appointment.getIdTest());
-//			appointment.set			
 			return new ResponseEntity<>(appointmentService.post(appointment), HttpStatus.CREATED);
 		} catch (Exception e) {
 			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
@@ -67,29 +61,25 @@ private AppointmentService appointmentService;
 	
 	@PutMapping("/appointment/{id}")
 	public ResponseEntity<Appointment> put(@PathVariable(value = "id") Long id,
-			@RequestBody Appointment appointmentDetails) {
-		Optional<Appointment> _test = appointmentService.getById(id);
+			@RequestBody Appointment appointmentDetails) throws ResourceNotFoundException {
+		Appointment appointment = appointmentService.getById(id).orElseThrow(() -> new ResourceNotFoundException
+				("Test not found for this id :: " + id));
 		
-		if (_test.isPresent()) {
-			Appointment appointment = _test.get();
-			appointment.setDateA(appointmentDetails.getDateA());
-			appointment.setHourA(appointmentDetails.getHourA());
-			appointment.setIdAffiliate(appointmentDetails.getIdAffiliate());
-			appointment.setIdTest(appointmentDetails.getIdTest());
-			return new ResponseEntity<>(appointmentService.put(appointment), HttpStatus.CREATED);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		appointment.setDateA(appointmentDetails.getDateA());
+		appointment.setHourA(appointmentDetails.getHourA());
+		appointment.setIdAffiliate(appointmentDetails.getIdAffiliate());
+		appointment.setIdTest(appointmentDetails.getIdTest());
+		
+		return new ResponseEntity<>(appointmentService.put(appointment), HttpStatus.CREATED);
 	}	
 	
 	@DeleteMapping("/appointment/{id}")
-	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) {
-		try {
-			appointmentService.delete(id);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
+	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) 
+			throws ResourceNoContentException{
+		Appointment appointment = appointmentService.getById(id).orElseThrow(() -> new ResourceNoContentException
+				("Test not found for this id :: " + id));
+		appointmentService.delete(id);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 	
 	@GetMapping("/appointment/affiliate/{id_affiliate}")
@@ -97,12 +87,11 @@ private AppointmentService appointmentService;
 		try {
 //			List<Appointment> appointment = new ArrayList<Appointment>();
 //			appointmentRepository.findAffiliateById(id).forEach(appointment::add);
-			List<Appointment> appointment = appointmentService.getByAffiliatesId(id);			
+			List<Appointment> appointment = appointmentService.getByAffiliatesId(id);
 			
 			if (appointment.isEmpty()) {
 				return new ResponseEntity<>(HttpStatus.NO_CONTENT);
 			}
-			
 			return new ResponseEntity<>(appointment, HttpStatus.OK);
 		} catch (Exception e) {
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
@@ -113,8 +102,6 @@ private AppointmentService appointmentService;
 	public ResponseEntity<List<Appointment>> getByAffiliatesDate(@PathVariable(name = "date")	
 	@DateTimeFormat(iso = DateTimeFormat.ISO.DATE) LocalDate date) {
 		try {
-//			List<Appointment> appointment = new ArrayList<Appointment>();
-//			appointmentRepository.findAffiliateByDate(date).forEach(appointment::add);
 			List<Appointment> appointment = appointmentService.getByAffiliatesDate(date);
 			
 			if (appointment.isEmpty()) {
@@ -125,14 +112,4 @@ private AppointmentService appointmentService;
 			return new ResponseEntity<>(null, HttpStatus.INTERNAL_SERVER_ERROR);
 		}
 	}
-	
-//	@PutMapping("/{appointmentId}/affiliate/{affiliateId}")
-//	Appointment enrrollAffiliateToSubject(
-//			@PathVariable long appointmentId, 
-//			@PathVariable long affiliateId) {
-//		Appointment appointment = appointmentRepository.findById(appointmentId).get();
-//		Affiliate affiliate = affiliateRepository.findById(affiliateId).get();
-//		appointment.enroll(affiliate);
-//		return appointmentRepository.save(appointment); 
-//	}
 }

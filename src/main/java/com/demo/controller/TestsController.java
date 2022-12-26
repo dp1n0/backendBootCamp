@@ -1,7 +1,6 @@
 package com.demo.controller;
 
 import java.util.List;
-import java.util.Optional;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,6 +14,8 @@ import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.demo.exception.ResourceNoContentException;
+import com.demo.exception.ResourceNotFoundException;
 import com.demo.model.Tests;
 import com.demo.service.TestService;
 
@@ -39,14 +40,11 @@ private TestService testService;
 	}
 	
 	@GetMapping("/tests/{id}")
-	public ResponseEntity<Tests> getById(@PathVariable(value = "id") Long id) {
-		Optional<Tests> test = testService.getById(id);
-
-		if (test.isPresent()) {
-			return new ResponseEntity<>(test.get(), HttpStatus.OK);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+	public ResponseEntity<Tests> getById(@PathVariable(value = "id") Long id) 
+			throws ResourceNotFoundException {
+		Tests test = testService.getById(id).orElseThrow(() -> new ResourceNotFoundException
+				("Test not found for this id :: " + id));
+		return ResponseEntity.ok(test);
 	}
 	
 	@PostMapping("/tests")
@@ -60,26 +58,22 @@ private TestService testService;
 	
 	@PutMapping("/tests/{id}")
 	public ResponseEntity<Tests> put(@PathVariable(value = "id") Long id,
-			@RequestBody Tests testDetails) {
-		Optional<Tests> _test = testService.getById(id);
+			@RequestBody Tests testDetails) throws ResourceNotFoundException {
+		Tests test = testService.getById(id).orElseThrow(() -> new ResourceNotFoundException
+				("Test not found for this id :: " + id));
 		
-		if (_test.isPresent()) {
-			Tests test = _test.get();
-			test.setName(testDetails.getName());
-			test.setDescription(testDetails.getDescription());
-			return new ResponseEntity<>(testService.put(test), HttpStatus.CREATED);
-		} else {
-			return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-		}
+		test.setName(testDetails.getName());
+		test.setDescription(testDetails.getDescription());
+		
+		return new ResponseEntity<>(testService.put(test), HttpStatus.CREATED);
 	}
 	
 	@DeleteMapping("/tests/{id}")
-	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) {
-		try {
-			testService.delete(id);
-			return new ResponseEntity<>(HttpStatus.OK);
-		} catch (Exception e) {
-			return new ResponseEntity<>(HttpStatus.NO_CONTENT);
-		}
+	public ResponseEntity<HttpStatus> delete(@PathVariable(value = "id") Long id) 
+			throws ResourceNoContentException {
+		Tests test = testService.getById(id).orElseThrow(() -> new ResourceNoContentException
+				("Test no content for this id :: " + id));
+		testService.delete(id);
+		return new ResponseEntity<>(HttpStatus.OK);
 	}
 }
